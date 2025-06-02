@@ -1,0 +1,30 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv('OnlineRetail.csv', encoding='ISO-8859-1')
+
+# Convert InvoiceDate to datetime
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'], errors='coerce')
+
+# Drop rows with missing dates or prices
+df = df.dropna(subset=['InvoiceDate', 'Quantity', 'UnitPrice'])
+
+# Create TotalPrice
+df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
+
+# Create Month-Year column
+df['MonthYear'] = df['InvoiceDate'].dt.to_period('M')
+
+# Group by Month-Year and sum TotalPrice
+monthly_sales = df.groupby('MonthYear')['TotalPrice'].sum()
+
+# Plot
+plt.figure(figsize=(12, 6))
+monthly_sales.plot(kind='line', marker='o')
+plt.title('📈 Monthly Sales Trend')
+plt.xlabel('Month-Year')
+plt.ylabel('Total Sales')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
