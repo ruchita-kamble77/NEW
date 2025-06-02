@@ -1,0 +1,60 @@
+pip install pandas textblob nltk
+import nltk
+nltk.download('vader_lexicon')
+
+import pandas as pd
+import string
+from textblob import TextBlob
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import nltk
+
+# Download VADER lexicon
+nltk.download('vader_lexicon')
+
+# Load dataset
+df = pd.read_csv('user_reviews.csv')  # Ensure 'ReviewText' column is present
+
+# Text cleaning function
+def clean_text(text):
+    if pd.isnull(text):
+        return ""
+    text = text.lower()
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    return text.strip()
+
+# Apply text cleaning
+df['CleanedReview'] = df['ReviewText'].apply(clean_text)
+
+# Initialize VADER
+vader = SentimentIntensityAnalyzer()
+
+# Define function for TextBlob sentiment
+def get_textblob_sentiment(text):
+    return TextBlob(text).sentiment.polarity
+
+# Define function for VADER sentiment
+def get_vader_sentiment(text):
+    return vader.polarity_scores(text)['compound']
+
+# Apply sentiment analysis
+df['TextBlob_Polarity'] = df['CleanedReview'].apply(get_textblob_sentiment)
+df['VADER_Compound'] = df['CleanedReview'].apply(get_vader_sentiment)
+
+# Classify overall sentiment (optional: threshold = 0.05)
+def classify_sentiment(score):
+    if score > 0.05:
+        return 'Positive'
+    elif score < -0.05:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+df['VADER_Sentiment'] = df['VADER_Compound'].apply(classify_sentiment)
+df['TextBlob_Sentiment'] = df['TextBlob_Polarity'].apply(classify_sentiment)
+
+# Show results
+print(df[['ReviewText', 'TextBlob_Polarity', 'TextBlob_Sentiment',
+          'VADER_Compound', 'VADER_Sentiment']].head(10))
+
+S
+
