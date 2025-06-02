@@ -1,0 +1,56 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+
+# Load dataset
+df = pd.read_csv('StudentScores.csv')
+
+# Binary target: Pass/Fail based on score
+df['Result'] = df['Score'].apply(lambda x: 'Pass' if x >= 50 else 'Fail')
+
+# Encode categorical columns
+le_gender = LabelEncoder()
+le_parent = LabelEncoder()
+df['Gender'] = le_gender.fit_transform(df['Gender'])
+df['ParentalEducation'] = le_parent.fit_transform(df['ParentalEducation'])
+
+# Features and target
+X = df[['Gender', 'ParentalEducation', 'Score']]
+y = df['Result']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Decision Tree
+clf = DecisionTreeClassifier()
+clf.fit(X_train, y_train)
+
+# Predictions and evaluation
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred))
+-------------------------------------------------------------------------
+
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv('OnlineRetail.csv', encoding='ISO-8859-1')
+
+# Convert to datetime
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'], errors='coerce')
+
+# Create TotalPrice
+df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
+
+# Extract Month-Year
+df['Month'] = df['InvoiceDate'].dt.to_period('M')
+
+# Drop rows with missing data
+df.dropna(subset=['Country', 'Month', 'TotalPrice'], inplace=True)
+
+# Create pivot table
+pivot = pd.pivot_table(df, values='TotalPrice', index='Country', columns='Month', aggfunc='sum', fill_value=0)
+
+# Show result
+print(pivot)
