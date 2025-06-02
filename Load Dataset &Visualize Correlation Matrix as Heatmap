@@ -1,0 +1,24 @@
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv('sales_data.csv')
+
+# Display statistical summary
+print(df.describe())
+================================
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load dataset (replace with your file if different)
+df = pd.read_csv('sales_data.csv')
+
+# Compute correlation matrix
+corr_matrix = df.corr(numeric_only=True)
+
+# Plot heatmap
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Matrix Heatmap')
+plt.show()
