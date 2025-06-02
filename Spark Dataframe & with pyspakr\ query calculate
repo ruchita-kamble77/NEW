@@ -1,0 +1,19 @@
+from pyspark.sql import SparkSession
+
+# Initialize SparkSession
+spark = SparkSession.builder.appName("EmployeeData").getOrCreate()
+
+# Load CSV as Spark DataFrame
+df = spark.read.csv('employees.csv', header=True, inferSchema=True)
+
+# Display schema
+df.printSchema()
+----------------------------------------------------------------
+
+from pyspark.sql.functions import expr
+
+# Assuming df is the DataFrame with columns 'department' and 'salary'
+median_salary_df = df.groupBy('department') \
+    .agg(expr('percentile_approx(salary, 0.5) as median_salary'))
+
+median_salary_df.show()
