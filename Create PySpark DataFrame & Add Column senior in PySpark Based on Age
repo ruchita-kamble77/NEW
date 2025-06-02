@@ -1,0 +1,24 @@
+from pyspark.sql import SparkSession
+
+# Initialize Spark session (if not already initialized)
+spark = SparkSession.builder.appName("TestApp").getOrCreate()
+
+# Sample data and columns
+data = [(1, "Alice", 25), (2, "Bob", 35), (3, "Charlie", 28)]
+columns = ["id", "name", "age"]
+
+# Create DataFrame
+df = spark.createDataFrame(data, schema=columns)
+
+# Print schema and show data
+df.printSchema()
+df.show()
+--------------------------------------------------------------
+
+from pyspark.sql.functions import when, col
+
+# Add 'senior' column
+df = df.withColumn("senior", when(col("age") > 30, "Yes").otherwise("No"))
+
+# Show updated DataFrame
+df.show()
