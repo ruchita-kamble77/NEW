@@ -1,0 +1,39 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+df = pd.read_csv('customer_churn.csv')
+
+# Encode target variable 'Churn' ("Yes" -> 1, "No" -> 0)
+le = LabelEncoder()
+df['Churn_encoded'] = le.fit_transform(df['Churn'])
+
+# Select features (drop target and any non-numeric columns if necessary)
+# Assuming all other columns except 'Churn' are features; adjust if needed
+X = df.drop(columns=['Churn', 'Churn_encoded'])
+y = df['Churn_encoded']
+
+# For simplicity, encode categorical features using one-hot encoding (if any)
+X = pd.get_dummies(X)
+
+# Split data (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Scale features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Initialize and train Logistic Regression model
+model = LogisticRegression(random_state=42, max_iter=1000)
+model.fit(X_train_scaled, y_train)
+
+# Predict on test set
+y_pred = model.predict(X_test_scaled)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"✅ Logistic Regression Model Accuracy: {accuracy:.4f}")
