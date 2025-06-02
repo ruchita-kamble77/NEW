@@ -1,0 +1,48 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
+
+# Load dataset
+df = pd.read_csv('Mall_Customers.csv')
+
+# Select features and scale them
+X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Apply DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=5)  # eps and min_samples can be tuned
+clusters = dbscan.fit_predict(X_scaled)
+
+# Add cluster labels to DataFrame
+df['Cluster'] = clusters
+
+# Plotting clusters
+plt.figure(figsize=(10, 6))
+
+# Noise points are labeled as -1 by DBSCAN
+colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'gray']
+for cluster_id in set(clusters):
+    if cluster_id == -1:
+        # Noise points
+        color = 'black'
+        label = 'Noise'
+        marker = 'x'
+    else:
+        color = colors[cluster_id % len(colors)]
+        label = f'Cluster {cluster_id}'
+        marker = 'o'
+    
+    plt.scatter(
+        df.loc[df['Cluster'] == cluster_id, 'Annual Income (k$)'],
+        df.loc[df['Cluster'] == cluster_id, 'Spending Score (1-100)'],
+        c=color, label=label, marker=marker, s=50, alpha=0.6
+    )
+
+plt.title('DBSCAN Clustering of Mall Customers')
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.legend()
+plt.grid(True)
+plt.show()
