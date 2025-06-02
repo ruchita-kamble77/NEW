@@ -1,0 +1,75 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans,DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+df = pd.read_csv('customer_metrics.csv')
+print(df.head())
+
+df.info()
+
+df.describe()
+
+df.isnull().sum()
+
+X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+inertia =[]
+for k in range (1,11):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    inertia.append(kmeans.inertia_)
+    
+plt.plot(range(1,11), inertia, marker='o')
+plt.xlabel('no. of cluster')
+plt.ylabel('inertia')
+plt.title('elow')
+plt.show()
+
+
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+kmeans = KMeans(n_clusters=k, random_state=42)
+df['KMeans_cluster'] = kmeans.fit_predict(X_scaled)
+plt.figure(figsize=(8,6))
+# Correct indexing for x and y: use column indices or names
+sns.scatterplot(
+    x=X_scaled[:, 0],  # 1st feature (e.g., Annual Income)
+    y=X_scaled[:, 1],  # 2nd feature (e.g., Spending Score)
+    hue=df['KMeans_cluster'],
+    palette='viridis'
+)
+
+plt.xlabel('Annual Income (scaled)')
+plt.ylabel('Spending Score (scaled)')
+plt.title('K-Means Clustering')
+plt.show()
+
+from sklearn.cluster import DBSCAN
+
+dbscan = DBSCAN(eps=0.5, min_samples=5)  # Corrected: min_samples, not min_sample
+df['DBSCAN_Cluster'] = dbscan.fit_predict(X_scaled)
+
+plt.figure(figsize=(8,6))
+sns.scatterplot(
+    x=X_scaled[:, 0], 
+    y=X_scaled[:, 1], 
+    hue=df['DBSCAN_Cluster'], 
+    palette='Set1'
+)
+
+plt.xlabel('Annual Income (scaled)')
+plt.ylabel('Spending Score (scaled)')
+plt.title('DBSCAN Clustering')
+plt.legend(title='Cluster')
+plt.show()
+
