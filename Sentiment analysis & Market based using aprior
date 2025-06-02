@@ -1,0 +1,30 @@
+import pandas as pd
+from textblob import TextBlob
+import re
+from nltk.corpus import stopwords
+import nltk
+
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+
+# Load dataset
+df = pd.read_csv("Product_Reviews.csv")
+
+# Clean text function
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'[^a-z\s]', '', text)  # Remove punctuation/numbers
+    text = ' '.join(word for word in text.split() if word not in stop_words)
+    return text
+
+# Apply cleaning
+df['CleanedReview'] = df['ReviewText'].apply(clean_text)
+
+# Sentiment polarity
+df['Polarity'] = df['CleanedReview'].apply(lambda x: TextBlob(x).sentiment.polarity)
+
+# Top 10 most negative reviews
+top_negative = df.sort_values('Polarity').head(10)
+print(top_negative[['ReviewText', 'Polarity']])
+----------------------------------------------------------
+
