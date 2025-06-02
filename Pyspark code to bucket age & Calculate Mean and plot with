@@ -1,0 +1,44 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import when
+
+# Start Spark session
+spark = SparkSession.builder.appName("Age Bucketing").getOrCreate()
+
+# Sample data
+data = [(1, 22), (2, 30), (3, 40), (4, 55), (5, 67)]
+df = spark.createDataFrame(data, ["id", "age"])
+
+# Bucket ages into groups
+df_binned = df.withColumn("age_group", 
+    when((df.age >= 18) & (df.age <= 25), "18-25")
+    .when((df.age >= 26) & (df.age <= 35), "26-35")
+    .when((df.age >= 36) & (df.age <= 45), "36-45")
+    .when((df.age >= 46) & (df.age <= 60), "46-60")
+    .otherwise("60+")
+)
+
+df_binned.show()
+------------------------------------------------------
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data
+df = pd.read_csv("sales.csv", parse_dates=['date'])
+
+# Sort by date
+df = df.sort_values('date')
+
+# Calculate 3-period rolling mean
+df['rolling'] = df['sales'].rolling(window=3).mean()
+
+# Plot original and rolling mean
+plt.figure(figsize=(10, 5))
+plt.plot(df['date'], df['sales'], label='Original Sales')
+plt.plot(df['date'], df['rolling'], label='Rolling Mean (3)', color='orange')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.title('Sales with Rolling Mean')
+plt.legend()
+plt.tight_layout()
+plt.show()
