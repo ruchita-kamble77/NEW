@@ -1,0 +1,21 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+# Load the dataset
+df = pd.read_csv('Mall_Customers.csv')
+
+# Select relevant numerical columns
+X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+
+# Initialize the StandardScaler
+scaler = StandardScaler()
+
+# Fit and transform the features
+X_scaled = scaler.fit_transform(X)
+
+# Convert to DataFrame for inspection
+scaled_df = pd.DataFrame(X_scaled, columns=['Income_scaled', 'Spending_scaled'])
+
+# Show first few rows
+print("✅ Scaled Customer Data:")
+print(scaled_df.head())
