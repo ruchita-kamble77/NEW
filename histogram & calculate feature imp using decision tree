@@ -1,0 +1,41 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset
+df = pd.read_csv('sales_data.csv')
+
+# Option 1: Using pandas built-in method
+df.hist(bins=20, figsize=(12, 8))
+plt.suptitle("Histograms of Numerical Columns")
+plt.show()
+
+# Option 2: Using seaborn (one variable at a time)
+for col in df.select_dtypes(include='number').columns:
+    plt.figure(figsize=(6, 4))
+    sns.histplot(df[col], kde=True, bins=20)
+    plt.title(f'Histogram of {col}')
+    plt.show()
+-------------------------------------------
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# Example: Using dummy classification dataset
+X = df.drop('target', axis=1)  # Replace 'target' with actual target column
+y = df['target']
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train Decision Tree
+model = DecisionTreeClassifier()
+model.fit(X_train, y_train)
+
+# Feature Importance
+importances = model.feature_importances_
+feature_names = X.columns
+
+# Display
+for name, importance in zip(feature_names, importances):
+    print(f'{name}: {importance:.4f}')
