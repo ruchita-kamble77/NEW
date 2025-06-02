@@ -1,0 +1,46 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, expr
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("RetailSalesAnalysis").getOrCreate()
+
+# Load CSV data
+df = spark.read.csv("OnlineRetail.csv", header=True, inferSchema=True)
+
+# Clean data: remove rows with missing CustomerID or InvoiceDate
+df_clean = df.dropna(subset=['CustomerID', 'InvoiceDate'])
+
+# Create TotalPrice column = Quantity * UnitPrice
+df_clean = df_clean.withColumn("TotalPrice", col("Quantity") * col("UnitPrice"))
+
+# Show top 10 transactions with highest TotalPrice
+df_clean.orderBy(col("TotalPrice").desc()).select("InvoiceNo", "CustomerID", "Quantity", "UnitPrice", "TotalPrice").show(10, truncate=False)
+
+# Stop Spark session when done (optional)
+# spark.stop()
+------------------------------------------------------------------
+from pyspark.sql.functions import to_date, date_format, sum as _sum
+import matplotlib.pyplot as plt
+
+# Convert InvoiceDate to date type (assuming format like 'MM/dd/yyyy HH:mm' or similar)
+df_clean = df_clean.withColumn("InvoiceDate", to_date(col("InvoiceDate")))
+
+# Extract Month-Year in "yyyy-MM" format
+df_clean = df_clean.withColumn("MonthYear", date_format(col("InvoiceDate"), "yyyy-MM"))
+
+# Group by MonthYear and sum TotalPrice for monthly revenue
+monthly_revenue = df_clean.groupBy("MonthYear").agg(_sum("TotalPrice").alias("TotalRevenue"))
+
+# Convert to Pandas for plotting
+monthly_revenue_pd = monthly_revenue.orderBy("MonthYear").toPandas()
+
+# Plot monthly revenue trend
+plt.figure(figsize=(12,6))
+plt.plot(monthly_revenue_pd['MonthYear'], monthly_revenue_pd['TotalRevenue'], marker='o')
+plt.xticks(rotation=45)
+plt.title("Monthly Revenue Trend")
+plt.xlabel("Month-Year")
+plt.ylabel("Total Revenue")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
