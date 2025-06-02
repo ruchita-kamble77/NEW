@@ -6,7 +6,12 @@ df.head()
 
 df.info()
 
-print("Shape:", df.shape) 
+print("Shape:", df.shape)
+
+#volumee
+
+print(" Memory Usage of Each Column:")
+df.info(memory_usage='deep') 
 
 print("Memoery Usage (MB):",df.memory_usage(deep=True).sum()/1024**2) 
 
@@ -18,6 +23,10 @@ print("Variety Count:\n", df.dtypes.value_counts())
 
 df['InvoiceDate']=pd.to_datetime(df['InvoiceDate'],dayfirst=True, errors='coerce')
 
+print("'InvoiceDate' converted to datetime:")
+print(df['InvoiceDate'].head())
+print("\n📄 Data types after conversion:")
+print(df.dtypes)
 df.info()
 
 
