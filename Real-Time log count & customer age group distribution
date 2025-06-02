@@ -1,0 +1,38 @@
+from pyspark import SparkContext
+
+# Initialize SparkContext
+sc = SparkContext("local", "LogFileWordCount")
+
+# Load the log file
+log_data = sc.textFile("access_log.txt")
+
+# Transformations
+word_counts = (log_data
+               .flatMap(lambda line: line.split())
+               .map(lambda word: (word, 1))
+               .reduceByKey(lambda a, b: a + b))
+
+# Collect and display result
+for word, count in word_counts.collect():
+    print(f"{word}: {count}")
+
+sc.stop()
+----------------------------------------------------------------
+
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv("Customer.csv")
+
+# Define age bins and labels
+bins = [0, 17, 25, 35, 45, 60, 100]
+labels = ['<18', '18-25', '26-35', '36-45', '46-60', '60+']
+
+# Bin ages
+df['AgeGroup'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
+
+# Count customers per age group
+age_distribution = df.groupby('AgeGroup').size()
+
+# Display result
+print(age_distribution)
