@@ -1,0 +1,11 @@
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('OnlineRetail.csv', encoding='ISO-8859-1')
+
+# Calculate total price for each transaction
+df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
+
+# Preview the result
+print("✅ 'TotalPrice' column added:")
+print(df[['Quantity', 'UnitPrice', 'TotalPrice']].head())
