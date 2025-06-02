@@ -1,0 +1,73 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+
+# Load dataset
+df = pd.read_csv("LoanData.csv")
+
+# Drop rows with missing target
+df = df.dropna(subset=['Loan_Status'])
+
+# Encode categorical columns
+label_encoders = {}
+for col in df.select_dtypes(include='object'):
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le
+
+# Define features and target
+X = df.drop('Loan_Status', axis=1)
+y = df['Loan_Status']
+
+# Scale features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Train Random Forest
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predict probabilities
+y_prob = model.predict_proba(X_test)[:, 1]
+
+# Evaluate with AUC
+auc_score = roc_auc_score(y_test, y_prob)
+print(f"✅ ROC AUC Score: {auc_score:.4f}")
+
+------------------------------------------------------------------------
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv("covid_cases.csv")
+
+# Convert date column to datetime
+df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+# Drop invalid dates
+df = df.dropna(subset=['date'])
+
+# Extract year-month
+df['month'] = df['date'].dt.to_period('M')
+
+# Group by month and aggregate cases and deaths
+monthly = df.groupby('month')[['cases', 'deaths']].sum().reset_index()
+monthly['month'] = monthly['month'].astype(str)
+
+# Plot
+plt.figure(figsize=(12, 6))
+plt.plot(monthly['month'], monthly['cases'], marker='o', label='Cases')
+plt.plot(monthly['month'], monthly['deaths'], marker='s', label='Deaths', color='red')
+plt.xticks(rotation=45)
+plt.title('Monthly COVID-19 Cases and Deaths')
+plt.xlabel('Month')
+plt.ylabel('Total Count')
+plt.legend()
+plt.tight_layout()
+plt.show()
