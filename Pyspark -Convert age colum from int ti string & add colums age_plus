@@ -1,0 +1,29 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("AgeOperations").getOrCreate()
+
+# Sample data
+data = [("Alice", 25), ("Bob", 30), ("Charlie", 35)]
+columns = ["name", "age"]
+
+# Create DataFrame
+df = spark.createDataFrame(data, columns)
+
+print("Original DataFrame:")
+df.show()
+df.printSchema()
+
+# 1. Convert 'age' column from Integer to String
+df = df.withColumn("age", col("age").cast("string"))
+
+# 2. Add column 'age_plus' as age + 5
+# Since 'age' is now string, cast it back to int before adding 5
+df = df.withColumn("age_plus", col("age").cast("int") + 5)
+
+print("DataFrame after conversion and addition:")
+df.show()
+df.printSchema()
+
+spark.stop()
