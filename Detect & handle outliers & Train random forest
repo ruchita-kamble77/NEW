@@ -1,0 +1,46 @@
+import pandas as pd
+from scipy.stats import zscore
+
+# Load dataset
+df = pd.read_csv("sales.csv")
+
+# Compute Z-scores for the numeric column
+df['z_score'] = zscore(df['SalesAmount'])
+
+# Filter out outliers where |Z-score| > 3
+df_no_outliers = df[df['z_score'].abs() < 3]
+
+# Drop the z_score column if no longer needed
+df_no_outliers = df_no_outliers.drop(columns='z_score')
+
+# Display cleaned data
+print(df_no_outliers.head())
+------------------------------------------------------------
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+# Load dataset
+data = load_iris()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Random Forest Classifier
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Plot feature importances
+importances = model.feature_importances_
+features = X.columns
+
+plt.figure(figsize=(10, 6))
+plt.barh(features, importances)
+plt.xlabel("Feature Importance")
+plt.title("Random Forest Feature Importances")
+plt.tight_layout()
+plt.show()
