@@ -1,0 +1,71 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Load dataset
+df = pd.read_csv("telecom_churn.csv")
+
+# Encode categorical variables
+le = LabelEncoder()
+for col in df.select_dtypes(include='object').columns:
+    df[col] = le.fit_transform(df[col])
+
+# Split features and target
+X = df.drop("Churn", axis=1)
+y = df["Churn"]
+
+# Scale features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split train-test
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Train model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+
+print("Accuracy:", acc)
+print("Confusion Matrix:\n", cm)
+----------------------------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.arima.model import ARIMA
+
+# Load dataset
+df = pd.read_csv("Monthly_Sales.csv", parse_dates=["Month"], index_col="Month")
+ts = df['Sales']
+
+# Check stationarity
+result = adfuller(ts)
+print('ADF Statistic:', result[0])
+print('p-value:', result[1])
+
+# If not stationary, difference the data
+if result[1] > 0.05:
+    ts = ts.diff().dropna()
+
+# Fit ARIMA (assume p=1, d=1, q=1; tune as needed)
+model = ARIMA(ts, order=(1,1,1))
+model_fit = model.fit()
+
+# Forecast next 12 months
+forecast = model_fit.forecast(steps=12)
+
+# Plot
+plt.figure(figsize=(10,5))
+ts.plot(label='Historical Sales')
+forecast.plot(label='Forecast', color='red')
+plt.legend()
+plt.title('12-Month Sales Forecast')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.show()
