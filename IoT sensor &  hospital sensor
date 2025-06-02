@@ -1,0 +1,57 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data
+df = pd.read_csv('iot_sensors.csv')
+
+# Convert Timestamp to datetime
+df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+# Set Timestamp as index
+df.set_index('Timestamp', inplace=True)
+
+# Resample to 1-minute intervals and take mean
+df_resampled = df['Temperature'].resample('1T').mean()
+
+# Plot temperature trend
+plt.figure(figsize=(12, 6))
+df_resampled.plot()
+plt.title('Temperature Trend (1-Minute Intervals)')
+plt.xlabel('Time')
+plt.ylabel('Temperature (°C)')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+---------------------------------------------------------------------
+
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv('PatientRecords.csv')
+
+# Drop rows with missing values in Height or Weight
+df = df.dropna(subset=['Height', 'Weight'])
+
+# Calculate BMI
+df['BMI'] = df['Weight'] / (df['Height'] ** 2)
+
+# Classify BMI
+def classify_bmi(bmi):
+    if bmi < 18.5:
+        return 'Underweight'
+    elif bmi < 25:
+        return 'Normal'
+    elif bmi < 30:
+        return 'Overweight'
+    else:
+        return 'Obese'
+
+df['BMI_Category'] = df['BMI'].apply(classify_bmi)
+
+# Count patients in each BMI category
+bmi_counts = df.groupby('BMI_Category').size()
+
+# Display results
+print("Number of patients per BMI category:")
+print(bmi_counts)
+
