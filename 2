@@ -1,0 +1,42 @@
+import pandas as pd
+df = pd.read_csv("OnlineRetail.csv", encoding='ISO-8859-1')
+
+df.head()
+
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'],dayfirst=True,errors='coerce')
+
+df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
+
+monthly_sales = df.groupby(df['InvoiceDate'].dt.to_period('M')).agg({
+    'Quantity': 'sum',
+    'TotalPrice': 'sum'
+}).reset_index()
+
+print(monthly_sales.head())
+
+monthly_sales = monthly_sales.reset_index()
+
+monthly_sales['InvoiceDate'] = monthly_sales['InvoiceDate'].dt.to_timestamp()
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(14,6))
+plt.plot(
+    monthly_sales['InvoiceDate'],
+    monthly_sales['TotalPrice'],
+    marker='o',
+    label='Total Sales'
+)
+plt.plot(
+    monthly_sales['InvoiceDate'],
+    monthly_sales['Quantity'],
+    marker='o',
+    label='Total Sales'
+)
+plt.title('Monthly Total Sales')
+plt.xlabel('Month')
+plt.ylabel('TotalPrice')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
