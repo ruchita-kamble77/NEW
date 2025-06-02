@@ -1,0 +1,43 @@
+import pandas as pd
+from prophet import Prophet
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv('temperature.csv')  # Ensure columns are 'ds' and 'y'
+df['ds'] = pd.to_datetime(df['ds'])
+
+# Initialize and fit model
+model = Prophet()
+model.fit(df)
+
+# Create future dataframe
+future = model.make_future_dataframe(periods=30)
+forecast = model.predict(future)
+
+# Plot forecast
+model.plot(forecast)
+plt.title("Temperature Forecast for Next 30 Days")
+plt.xlabel("Date")
+plt.ylabel("Temperature")
+plt.tight_layout()
+plt.show()
+-----------------------------------------------------
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+
+# Load dataset
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)
+
+# Train model
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Save model to file
+joblib.dump(model, 'random_forest_model.pkl')
+  
+
+loaded_model = joblib.load('random_forest_model.pkl')
+predictions = loaded_model.predict(X_test)
