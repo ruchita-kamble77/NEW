@@ -1,0 +1,41 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv('your_numeric_dataset.csv')
+
+# Standardize features
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(df)
+
+# Apply PCA
+pca = PCA()
+pca.fit(scaled_data)
+
+# Plot explained variance
+plt.figure(figsize=(8, 5))
+plt.plot(range(1, len(pca.explained_variance_ratio_)+1),
+         pca.explained_variance_ratio_, marker='o')
+plt.xlabel('Principal Component')
+plt.ylabel('Explained Variance Ratio')
+plt.title('PCA - Explained Variance')
+plt.grid(True)
+plt.show()
+--------------------------------------------------------------------------
+import pandas as pd
+import glob
+import os
+
+# Path to folder containing CSVs
+folder_path = 'path_to_folder_with_csvs'
+
+# List all CSV files
+csv_files = glob.glob(os.path.join(folder_path, '*.csv'))
+
+# Read and combine all CSVs
+df_combined = pd.concat((pd.read_csv(file) for file in csv_files), ignore_index=True)
+
+# Preview combined DataFrame
+print(df_combined.head())
