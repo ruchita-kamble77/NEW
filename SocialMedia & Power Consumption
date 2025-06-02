@@ -1,0 +1,48 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv("Instagram_Insights.csv")
+
+# Calculate engagement rate
+df['EngagementRate'] = (df['Likes'] + df['Comments']) / df['Followers']
+
+# Top 10 posts by engagement
+top_posts = df.sort_values(by='EngagementRate', ascending=False).head(10)
+
+# Plot
+plt.figure(figsize=(10, 6))
+plt.barh(top_posts['Post'], top_posts['EngagementRate'], color='skyblue')
+plt.xlabel('Engagement Rate')
+plt.title('Top 10 Instagram Posts by Engagement Rate')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
+
+-----------------------------------------------------------------------
+import pandas as pd
+from prophet import Prophet
+import matplotlib.pyplot as plt
+
+# Load dataset
+df = pd.read_csv("Electricity.csv")
+
+# Ensure datetime format and clean data
+df['ds'] = pd.to_datetime(df['timestamp'])  # rename to Prophet-friendly 'ds'
+df['y'] = df['power_consumption']          # rename target to 'y'
+df = df[['ds', 'y']].fillna(method='ffill')
+
+# Initialize and fit Prophet model
+model = Prophet(daily_seasonality=True)
+model.fit(df)
+
+# Create future dataframe for next 7 days
+future = model.make_future_dataframe(periods=7)
+forecast = model.predict(future)
+
+# Plot forecast
+fig = model.plot(forecast)
+plt.title('🔌 Power Consumption Forecast (Next 7 Days)')
+plt.xlabel('Date')
+plt.ylabel('Power Consumption')
+plt.show()
