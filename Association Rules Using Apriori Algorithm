@@ -1,0 +1,34 @@
+get_ipython().system('pip install mlxtend')
+
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+
+df = pd.read_csv('retail_transactions.csv')
+df_encoded = df.applymap(lambda x: 1 if x else 0)
+
+transactions=[
+    ['Milk','Bread','Butter'],
+    ['Bread','Butter'],
+    ['Milk','Diaper','Beer','Egg'],
+    ['Bread','Butter','Diaper'],
+    ['Milk','Diaper','Bread','Butter'],
+    ['Beer','Diaper'],
+    ['Milk','Butter','Diaper','Egg'],
+]
+
+te=TransactionEncoder()
+te_ary =te.fit(transactions).transform(transactions)
+df_onehot =pd.DataFrame(te_ary, columns=te.columns_)
+print("One-hot encoded dataset:")
+display(df_onehot)
+
+
+frequent_itemset =apriori(df_onehot, min_support=0.4, use_colnames=True)
+print("frequent_itemset")
+display(frequent_itemset)
+
+rules =association_rules(frequent_itemset, metric="confidence", min_threshold=0.7)
+print(association_rules)
+display(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+
