@@ -1,0 +1,35 @@
+#. Demonstrate Big Data 4 Vs using Retail Dataset
+
+import pandas as pd
+df=pd.read_csv("OnlineRetail.csv", encoding='ISO-8859-1') #encoding- to handle special characters in the dataset. 
+df.head()
+
+df.info()
+
+print("Shape:", df.shape) 
+
+print("Memoery Usage (MB):",df.memory_usage(deep=True).sum()/1024**2) 
+
+#Variety --Different Data Types and Sources
+print("Data Type:\n", df.dtypes)
+print("Variety Count:\n", df.dtypes.value_counts())
+
+#Velocity --Speed of Data Generation & Processing
+
+df['InvoiceDate']=pd.to_datetime(df['InvoiceDate'],dayfirst=True, errors='coerce')
+
+df.info()
+
+
+#Veracity-- Data Quality and Trustworthiness
+print("Missing Values:\n", df.isnull().sum())
+
+print("Duplicate Records:\n", df.duplicated().sum())
+
+print("\nDescriptive statistics:")
+print(df.describe(include='all'))
+
+print("\nTop 5 frequent countries:")
+print(df['Country'].value_counts().head())
+
+
