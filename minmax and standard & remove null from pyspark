@@ -1,1 +1,45 @@
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+# Sample dataset (replace with your actual file)
+df = pd.read_csv("customer_data.csv")  # Should contain columns like 'Income', 'Score'
+features = ['Income', 'Score']
+
+# Extract features
+X = df[features]
+
+# Initialize scalers
+minmax = MinMaxScaler()
+standard = StandardScaler()
+
+# Apply scalers
+X_minmax = minmax.fit_transform(X)
+X_standard = standard.fit_transform(X)
+
+# Compare results in a DataFrame
+comparison_df = pd.DataFrame({
+    'Original Income': X['Income'],
+    'MinMax Income': X_minmax[:, 0],
+    'Standard Income': X_standard[:, 0],
+    'Original Score': X['Score'],
+    'MinMax Score': X_minmax[:, 1],
+    'Standard Score': X_standard[:, 1]
+})
+
+print(comparison_df.head())
+----------------------------------------
+
+from pyspark.sql import SparkSession
+
+# Start Spark session
+spark = SparkSession.builder.appName("NullFilter").getOrCreate()
+
+# Load data
+df = spark.read.csv("data.csv", header=True, inferSchema=True)
+
+# Drop null rows
+df_clean = df.dropna()
+
+# Show result
+df_clean.show()
 
