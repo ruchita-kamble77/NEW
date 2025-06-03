@@ -1,0 +1,155 @@
+spark
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+sc=spark.sparkContext
+data=[
+    ("Alice",29,"Engineering"),
+    ("Bob,",35,"Sales"),
+    ("Charlie",40,"Engineering"),
+    ("David",30,"HR"),
+    ("Eva",25,"Sales")
+]
+columns=["name","age","department"]
+df=spark.createDataFrame(data,columns)
+df.display()
+
+
+
+df.printSchema()
+root
+ |-- name: string (nullable = true)
+ |-- age: long (nullable = true)
+ |-- department: string (nullable = true)
+df.show()
++-------+---+-----------+
+|   name|age| department|
++-------+---+-----------+
+|  Alice| 29|Engineering|
+|   Bob,| 35|      Sales|
+|Charlie| 40|Engineering|
+|  David| 30|         HR|
+|    Eva| 25|      Sales|
++-------+---+-----------+
+
+
+df.select("name","age").show()
++-------+---+
+|   name|age|
++-------+---+
+|  Alice| 29|
+|   Bob,| 35|
+|Charlie| 40|
+|  David| 30|
+|    Eva| 25|
++-------+---+
+
+
+df.filter(df.age>30).show()
++-------+---+-----------+
+|   name|age| department|
++-------+---+-----------+
+|   Bob,| 35|      Sales|
+|Charlie| 40|Engineering|
++-------+---+-----------+
+
+
+from pyspark.sql.functions import col
+df.withColumn("age_plus",col("age")+5).show()
++-------+---+-----------+--------+
+|   name|age| department|age_plus|
++-------+---+-----------+--------+
+|  Alice| 29|Engineering|      34|
+|   Bob,| 35|      Sales|      40|
+|Charlie| 40|Engineering|      45|
+|  David| 30|         HR|      35|
+|    Eva| 25|      Sales|      30|
++-------+---+-----------+--------+
+df.groupBy("department").avg("age").show()
++-----------+--------+
+| department|avg(age)|
++-----------+--------+
+|Engineering|    34.5|
+|      Sales|    30.0|
+|         HR|    30.0|
++-----------+--------+
+df.orderBy("age",ascending=False).show()
++-------+---+-----------+
+|   name|age| department|
++-------+---+-----------+
+|Charlie| 40|Engineering|
+|   Bob,| 35|      Sales|
+|  David| 30|         HR|
+|  Alice| 29|Engineering|
+|    Eva| 25|      Sales|
++-------+---+-----------+
+
+
+df.orderBy("age",decending=False).show()
++-------+---+-----------+
+|   name|age| department|
++-------+---+-----------+
+|    Eva| 25|      Sales|
+|  Alice| 29|Engineering|
+|  David| 30|         HR|
+|   Bob,| 35|      Sales|
+|Charlie| 40|Engineering|
++-------+---+-----------+
+
+
+df.withColumnRenamed("age","employee_age").show()
++-------+------------+-----------+
+|   name|employee_age| department|
++-------+------------+-----------+
+|  Alice|          29|Engineering|
+|   Bob,|          35|      Sales|
+|Charlie|          40|Engineering|
+|  David|          30|         HR|
+|    Eva|          25|      Sales|
++-------+------------+-----------+
+
+
+df.drop("department").show()
++-------+---+
+|   name|age|
++-------+---+
+|  Alice| 29|
+|   Bob,| 35|
+|Charlie| 40|
+|  David| 30|
+|    Eva| 25|
++-------+---+
+df.withColumn("age",col("age").cast("string")).printSchema()
+root
+ |-- name: string (nullable = true)
+ |-- age: string (nullable = true)
+ |-- department: string (nullable = true)
+
+
+df.describe()
+Out[22]: DataFrame[summary: string, name: string, age: string, department: string]
+
+
+from pyspark.sql.functions import when
+df.withColumn("senior",when(col("age")>30,"Yes").otherwise("NO")).show()
+
+
++-------+---+-----------+------+
+|   name|age| department|senior|
++-------+---+-----------+------+
+|  Alice| 29|Engineering|    NO|
+|   Bob,| 35|      Sales|   Yes|
+|Charlie| 40|Engineering|   Yes|
+|  David| 30|         HR|    NO|
+|    Eva| 25|      Sales|    NO|
++-------+---+-----------+------+
+
+
+df.select("department").distinct().show()
+
++-----------+
+| department|
++-----------+
+|Engineering|
+|      Sales|
+|         HR|
++-----------+
