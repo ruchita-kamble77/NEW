@@ -1,0 +1,21 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import avg
+
+# Sample Data (or you can read from a CSV)
+data = [
+    ("Alice", 30, "HR"),
+    ("Bob", 25, "IT"),
+    ("Charlie", 28, "IT"),
+    ("Diana", 32, "HR"),
+    ("Eve", 29, "Sales")
+]
+
+# Define schema and create DataFrame
+columns = ["name", "age", "department"]
+df = spark.createDataFrame(data, schema=columns)
+
+# Group by department and calculate average age
+avg_age_df = df.groupBy("department").agg(avg("age").alias("average_age"))
+
+# Show results
+avg_age_df.show()
