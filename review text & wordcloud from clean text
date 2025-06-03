@@ -1,0 +1,58 @@
+# One-time NLTK setup
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+
+
+# Step 1: Load Dataset
+df = spark.read.option("header", True).csv("/FileStore/reviews.csv")
+
+# Step 2: Import libraries
+import re
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+# Step 3: Define cleaning and tokenization function
+stop_words = set(stopwords.words("english"))
+
+def clean_tokenize(text):
+    if text is None:
+        return []
+    text = re.sub(r"[^\w\s]", "", text)         # Remove punctuation
+    text = text.lower()                         # Convert to lowercase
+    tokens = word_tokenize(text)                # Tokenize
+    return [word for word in tokens if word not in stop_words]  # Remove stopwords
+
+# Step 4: Register UDF
+from pyspark.sql.functions import udf
+from pyspark.sql.types import ArrayType, StringType
+
+clean_udf = udf(clean_tokenize, ArrayType(StringType()))
+
+# Step 5: Apply UDF to DataFrame
+cleaned_df = df.withColumn("CleanedTokens", clean_udf(df["ReviewText"]))
+
+# Step 6: Show result
+cleaned_df.select("ReviewText", "CleanedTokens").show(truncate=False)
+--------------------------------------------------------
+
+
+# Step 1: Convert cleaned PySpark DataFrame to Pandas
+pandas_df = cleaned_df.select("CleanedTokens").toPandas()
+
+# Step 2: Combine all tokens into one string
+all_tokens = sum(pandas_df["CleanedTokens"], [])   # Flatten list of lists
+all_text = " ".join(all_tokens)
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Step 4: Create WordCloud object and generate from text
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
+
+# Step 5: Display using matplotlib
+plt.figure(figsize=(12, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.show()
+
