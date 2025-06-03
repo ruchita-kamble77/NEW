@@ -1,0 +1,37 @@
+# Step 1: Read the text file as an RDD
+rdd = sc.textFile("/FileStore/reviews.txt")
+
+# Step 2: Tokenize lines into words (split by whitespace)
+words = rdd.flatMap(lambda line: line.split())
+
+# Step 3: Create (word, 1) pairs
+word_pairs = words.map(lambda word: (word, 1))
+
+# Step 4: Reduce by key to get word counts
+word_counts = word_pairs.reduceByKey(lambda a, b: a + b)
+
+# Step 5: Collect and display results
+output = word_counts.collect()
+
+# Print results
+for word, count in output:
+    print(f"{word}: {count}")
+
+-------------------------------------------------------------------------
+
+from pyspark.sql.functions import col, avg
+
+# Step 1: Read CSV as DataFrame
+df = spark.read.option("header", True).option("inferSchema", True).csv("/FileStore/employees.csv")
+
+# Step 2: Filter out employees under 25
+filtered_df = df.filter(col("age") >= 25)
+
+# Step 3: Group by department and calculate average salary
+avg_salary_df = filtered_df.groupBy("department").agg(avg("salary").alias("avg_salary"))
+
+# Step 4 (optional): Round the average salary or cast if needed
+# avg_salary_df = avg_salary_df.withColumn("avg_salary", col("avg_salary").cast("int"))
+
+# Step 5: Show results
+avg_salary_df.show()
