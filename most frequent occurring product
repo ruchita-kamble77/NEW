@@ -1,0 +1,14 @@
+import pandas as pd
+
+# Step 1: Load the CSV file
+df = pd.read_csv("OnlineRetail.csv", encoding='ISO-8859-1')  # Encoding may be needed
+
+# Step 2: Clean and filter the Description column
+df['Description'] = df['Description'].astype(str).str.strip()         # Remove leading/trailing spaces
+df = df[df['Description'].notnull()]                                  # Drop NaN values
+
+# Step 3: Count and print top 10 most frequent descriptions
+top_descriptions = df['Description'].value_counts().head(10)
+
+# Step 4: Display result
+print(top_descriptions)
